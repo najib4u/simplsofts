@@ -14,7 +14,7 @@ textarea {resize:none} label {vertical-align:top; padding-left:0.5em} iframe {bo
 .invalid *:required:invalid {outline:2px solid rgba(255,0,0,0.75); animation:shake 0.7s} .invalid *:required:valid {outline:none}
 .global a:link { color:#0000FF; text-decoration:underline; }
 .global a:visited { color:#800080; }
-.global ul,ol { list-style-type:disc; }
+.global ul,ol { list-style-type:circle; }
 h1,h2,h3,h4,h5,h6 { display:inline; margin:0; padding:0; background-color:transparent; background-image:none; font-weight:normal; }
 
 .frm { font-family:Arial, Helvetica, sans-serif; color:#808080; font-size:11px; direction:ltr; }
