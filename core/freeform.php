@@ -42,7 +42,7 @@
 . */
 error_reporting(E_ERROR | E_WARNING | E_PARSE); $etag = chr(62); $txt_endmask = '/'.'/'.'-'.'-'.$etag;
  $default_recipient = "webmaster"; $your_domain = "@domain.net"; $default_success_page = "../index.htm";
- $default_error_page = "../index.htm"; $file_attachment_max_kbytes = "500";
+ $default_error_page = "../lost.htm"; $file_attachment_max_kbytes = "0";
 function filter_tags($string){ $string = stripcslashes($string); $replaced_string = str_replace('<','<',$string);
  $replaced_string = str_replace($etag,$etag,$replaced_string); return $replaced_string; }
 function filter_template($string){ $template=strip_tags(base64_decode($string),"<br><b><i><u><span><ul><li>");
@@ -53,6 +53,15 @@ function tag_to_entity($string){ $replaced_string = htmlspecialchars($string); r
 function full_path($base,$rel){ if (strpos($rel,'://')!==false) {return $rel;} $ba=explode('/',$base); array_pop($ba);
  $ra=explode('/',$rel); foreach ($ra as $r){ if ($r=='..') {array_pop($ba);} elseif ($r!='.') {array_push($ba,$r);} }
  return implode('/',$ba); }
+function sendMailGun($from,$to,$subj,$text,$html){ $ch = curl_init(); curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
+ curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
+ curl_setopt($ch, CURLOPT_URL, 'https://api.mailgun.net/v2/simplsofts.tk/messages');
+ curl_setopt($ch, CURLOPT_POSTFIELDS, array('from' => $from,'to' => $to,'subject' => $subj,'text' => $text,'html' => $html));
+ $result = curl_exec($ch); curl_close($ch); return $result; } function sendMailGunMime($to,$message){ $ch = curl_init();
+ curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC); curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
+ curl_setopt($ch, CURLOPT_URL, 'https://api.mailgun.net/v2/simplsofts.tk/messages.mime');
+ curl_setopt($ch, CURLOPT_POSTFIELDS, array('to' => $to,'message' => $message)); $result = curl_exec($ch); curl_close($ch);
+ return $result; }
 $httphost = $_SERVER['HTTP_HOST']; $site = '://'.$httphost.'/'; $referrer = $_SERVER['HTTP_REFERER'];
  if (!mb_ereg($site,$referrer)) { echo "<!--" . $txt_endmask;
  echo "Referrer not recognised: $referrer.<br>Form must be sent from $httphost.  Please upload the form to $httphost."; exit; }
@@ -122,7 +131,7 @@ $boundary1="nextpart_001_" . md5(time()); $boundary2="nextpart_002_" . md5(time(
  else {$htext .= "$fileerror $name does not exist (was not uploaded successfully).";} } else {$htext .= $count;} } }
  $filetext .= $bound1close; $recipient = filter_tags($recipient); if (strpos($recipient,'@')===false) exit;
  $subject = filter_tags($subject); $html=$htext.$htmltail; $message=$ptext.$text.$hptext.$htext.$htmltail.$filetext;
- $mailAccepted=mail($recipient,$subject,$message,$headers);
+ $mailAccepted=sendMailGunMime($recipient,$headers.$message); /*sendMailGun($from,$recipient,$subject,$text,$html);*/
 if ($mailAccepted){ $nextpage=$successpage; } else { $nextpage=$errorpage; } header('Location:' . $nextpage); die();
  echo '<'.'!'.'-'.'-'; ?>
 // -->
